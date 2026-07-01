@@ -1,6 +1,5 @@
 # =====================================
-# AI BASED FILE INTEGRITY MONITORING
-# AND ANOMALY DETECTION SYSTEM
+# RiskLens-Anomaly-Detection
 # =====================================
 
 import streamlit as st
@@ -11,18 +10,10 @@ import os
 import matplotlib.pyplot as plt
 from io import BytesIO
 
-# =====================================
-# PAGE SETTINGS
-# =====================================
-
 st.set_page_config(
-    page_title="Integrity Monitor",
+    page_title="Monitor",
     layout="centered"
 )
-
-# =====================================
-# STYLE (Pleasant Dashboard Background)
-# =====================================
 
 st.markdown("""
 <style>
@@ -50,15 +41,11 @@ st.markdown("""
 st.markdown(
     """
     <div class="title-style">
-    AI-Based File Integrity Monitoring & Anomaly Detection
+    RiskLens-Anomaly-Detection
     </div>
     """,
     unsafe_allow_html=True
 )
-
-# =====================================
-# LOAD MODELS
-# =====================================
 
 rf_model_path = "model_rf.pkl"
 if_model_path = "model_if.pkl"
@@ -74,18 +61,10 @@ if not os.path.exists(if_model_path):
 rf_model = pickle.load(open(rf_model_path, "rb"))
 if_model = pickle.load(open(if_model_path, "rb"))
 
-# =====================================
-# FILE UPLOAD
-# =====================================
-
 uploaded_file = st.file_uploader(
     "Upload Log File",
     type="csv"
 )
-
-# =====================================
-# EXCEL REPORT FUNCTION
-# =====================================
 
 def create_excel(summary_df):
 
@@ -99,16 +78,12 @@ def create_excel(summary_df):
         summary_df.to_excel(
             writer,
             index=False,
-            sheet_name="Security Report"
+            sheet_name="Report"
         )
 
     output.seek(0)
 
     return output
-
-# =====================================
-# MAIN PROCESS
-# =====================================
 
 if uploaded_file is not None:
 
@@ -134,11 +109,7 @@ if uploaded_file is not None:
                     .cat.codes
                 )
 
-        # =====================================
-        # RUN SECURITY ANALYSIS
-        # =====================================
-
-        if st.button("Run Security Analysis"):
+        if st.button("Run"):
 
             # Random Forest
 
@@ -180,28 +151,20 @@ if uploaded_file is not None:
                 / total_records
             ) * 100
 
-            # =====================================
-            # RISK LEVEL
-            # =====================================
-
             if risk_score <= 20:
 
                 risk_level = "Low"
-                alert_message = "System operating normally"
+                alert_message = "Normal"
 
             elif risk_score <= 50:
 
                 risk_level = "Medium"
-                alert_message = "Monitoring recommended"
+                alert_message = "Monitor"
 
             else:
 
                 risk_level = "High"
-                alert_message = "Potential threat detected"
-
-            # =====================================
-            # DEPARTMENT IDENTIFICATION
-            # =====================================
+                alert_message = "Threat detected"
 
             if (
                 "employee_department"
@@ -225,18 +188,10 @@ if uploaded_file is not None:
 
                 top_department = "N/A"
 
-            # =====================================
-            # DASHBOARD PANEL
-            # =====================================
-
             st.markdown(
                 '<div class="main-card">',
                 unsafe_allow_html=True
             )
-
-            # =====================================
-            # METRIC ROW
-            # =====================================
 
             col1, col2, col3 = st.columns(3)
 
@@ -257,10 +212,6 @@ if uploaded_file is not None:
 
             st.write("")
 
-            # =====================================
-            # STATUS INDICATOR
-            # =====================================
-
             if risk_level == "Low":
 
                 st.success(
@@ -270,7 +221,7 @@ if uploaded_file is not None:
             elif risk_level == "Medium":
 
                 st.warning(
-                    "System Status: Monitoring Required"
+                    "System Status: Monitor"
                 )
 
             else:
@@ -289,10 +240,6 @@ if uploaded_file is not None:
                 "Department with Malicious Access:",
                 top_department
             )
-
-            # =====================================
-            # DONUT CHART
-            # =====================================
 
             labels = [
                 "Normal",
@@ -344,10 +291,6 @@ if uploaded_file is not None:
                 unsafe_allow_html=True
             )
 
-            # =====================================
-            # SUMMARY REPORT
-            # =====================================
-
             summary_df = pd.DataFrame({
 
                 "Total Records":
@@ -359,7 +302,7 @@ if uploaded_file is not None:
                 "Malicious Users":
                 [anomaly_count],
 
-                "Department with Malicious Access":
+                "Department with Suspicious Activity":
                 [top_department],
 
                 "Risk Score (%)":
@@ -379,11 +322,11 @@ if uploaded_file is not None:
 
             st.download_button(
 
-                label="Download Security Report",
+                label="Download Report",
 
                 data=excel_file,
 
-                file_name="Security_Report.xlsx",
+                file_name="Report.xlsx",
 
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 
